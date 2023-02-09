@@ -10,7 +10,7 @@ jobs:
 
     steps:
     - name: checkout
-      uses: action/checkout@v1
+      uses: actions/checkout@v1
 
     - name: Build Docker Img
       run: docker build -t $TAG .
