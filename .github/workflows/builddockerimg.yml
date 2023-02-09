@@ -1,0 +1,37 @@
+name: Build-Docker-Image
+
+on: [push]
+
+Jobs:
+  build_docker_img:
+    runs-on: ubuntu-latest
+    env:
+      TAG: pythonapi
+
+    steps:
+    - name: checkout
+      uses: action/checkout@v1
+
+    - name: Build Docker Img
+      run: docker build -t $TAG .
+
+    - name: Login to ECR
+      run: |
+        aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 196236753581.dkr.ecr.us-east-1.amazonaws.com
+        docker tag pythonapi:latest 196236753581.dkr.ecr.us-east-1.amazonaws.com/pythonapi:latest
+        docker push 196236753581.dkr.ecr.us-east-1.amazonaws.com/pythonapi:latest
+
+    - name: Image Scan
+       uses: aquasecurity/trivy-action@master
+       with:
+          image-ref: '196236753581.dkr.ecr.us-east-1.amazonaws.com/pythonapi:latest'
+          security-checks: 'vuln,secret,config'
+          format: 'sarif'
+          output: 'trivy-image-results.sarif'
+          severity: 'CRITICAL,HIGH'
+
+    - name: Upload the scan result to GitHub Security
+       uses: github/codeql-action/upload-sarif@v2
+       with:
+          sarif_file: 'trivy-image-results.sarif'
+          category: 'image'
