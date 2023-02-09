@@ -2,7 +2,7 @@ name: Build-Docker-Image
 
 on: [push]
 
-Jobs:
+jobs:
   builddockerimg:
     runs-on: ubuntu-latest
     env:
@@ -21,17 +21,17 @@ Jobs:
         docker tag pythonapi:latest 196236753581.dkr.ecr.us-east-1.amazonaws.com/pythonapi:latest
         docker push 196236753581.dkr.ecr.us-east-1.amazonaws.com/pythonapi:latest
 
-    # - name: Image Scan
-    #   uses: aquasecurity/trivy-action@master
-    #   with:
-    #     image-ref: '196236753581.dkr.ecr.us-east-1.amazonaws.com/pythonapi:latest'
-    #     security-checks: 'vuln,secret,config'
-    #     format: 'sarif'
-    #     output: 'trivy-image-results.sarif'
-    #     severity: 'CRITICAL,HIGH'
+    - name: Image Scan
+      uses: aquasecurity/trivy-action@master
+      with:
+        image-ref: '196236753581.dkr.ecr.us-east-1.amazonaws.com/pythonapi:latest'
+        security-checks: 'vuln,secret,config'
+        format: 'sarif'
+        output: 'trivy-image-results.sarif'
+        severity: 'CRITICAL,HIGH'
 
-    # - name: Upload the scan result to GitHub Security
-    #   uses: github/codeql-action/upload-sarif@v2
-    #   with:
-    #     sarif_file: 'trivy-image-results.sarif'
-    #     category: 'image'
+    - name: Upload the scan result to GitHub Security
+      uses: github/codeql-action/upload-sarif@v2
+      with:
+        sarif_file: 'trivy-image-results.sarif'
+        category: 'image'
